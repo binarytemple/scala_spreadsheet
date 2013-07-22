@@ -1,0 +1,6 @@
+#!/bin/bash
+
+ARGS=$@
+
+echo exec java -classpath /home/bryan/.sbt/boot/scala-2.10.0/lib/scala-library.jar:/home/bryan/.ivy2/cache/org.parboiled/parboiled-scala_2.10/bundles/parboiled-scala_2.10-1.1.5.jar:/home/bryan/.ivy2/cache/org.parboiled/parboiled-core/bundles/parboiled-core-1.1.5.jar:/home/bryan/.ivy2/cache/jline/jline/jars/jline-2.10.jar:./target/scala-2.10/classes Example $ARGS
+exec java -classpath /home/bryan/.sbt/boot/scala-2.10.0/lib/scala-library.jar:/home/bryan/.ivy2/cache/org.parboiled/parboiled-scala_2.10/bundles/parboiled-scala_2.10-1.1.5.jar:/home/bryan/.ivy2/cache/org.parboiled/parboiled-core/bundles/parboiled-core-1.1.5.jar:/home/bryan/.ivy2/cache/jline/jline/jars/jline-2.10.jar:./target/scala-2.10/classes Example $ARGS

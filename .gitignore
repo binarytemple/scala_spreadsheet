@@ -1,0 +1,16 @@
+.cache
+.classpath
+.project
+project/build/target
+project/target
+target
+project/project
+.ensime
+.ensime_lucene
+.idea
+bin
+lib
+*.iml
+*~
+.*.swp
+*.swp
