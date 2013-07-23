@@ -46,26 +46,14 @@ object Model {
     }
 
     def printable()(implicit m: Model, settings: Settings): String = {
-      val n = numericalValue()
-      val ret = if(n == 0) "" else n.toString
-//      val ret = {
-//
-//        value match {
-//          case Left(s: String) if isNumeric(s) => numericalValue()
-//          case Right(f) => numericalValue()
-//        }
 
-//        if (isNumeric(value) || value.startsWith("=")) {
-//          val ret: Double = numericalValue()
-//          if (ret == 0)
-//            ""
-//          else
-//            ret.toString
-//        }
-//        else {
-//          value
-//        }
-//      }
+        val ret: String = value match {
+          case Left(s) if isNumeric(s) && s == "0" => ""
+          case Left(s) if isNumeric(s) => s
+          case Left(s)  => s
+          case Right(f) => f.evaluate().toString
+        }
+
       ret.substring(0, Math.min(settings.CellWidth, ret.length)).trim
     }
   }
@@ -91,4 +79,13 @@ class Model {
   val data: Array[Array[Cell]] = generateDefault()
 
   def getRow(i: Int) = data(i)
+
+  def getCol(i: Int) =
+    (for(r <- Range(0,data.length)) yield getRow(r)(i) ).toList
+
+  def getRowCol(rc:RCOff) = data(rc.row)(rc.col)
+
+  def setRowCol(rc:RCOff,c:Cell) = data(rc.row).update(rc.col,c)
+
+
 }

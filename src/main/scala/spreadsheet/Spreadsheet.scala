@@ -8,58 +8,72 @@ import spreadsheet.QueryTermParser.Formula
 
 object Spreadsheet {
 
-  /**
-   * Convert a CellId to an offset pair. The offsets are zero based.
-   */
-  def c2t(id: CellId): RCOff = {
-    id.toCharArray.toList match {
-      case c :: r :: Nil => (c.toUpper - 65, r.toString.toInt - 1)
-      case other => throw new Exception(s"Couldn't get offset from $id, it split to '$other'")
-    }
-  }
+//  /**
+//   * Convert a CellId to an offset pair. The offsets are zero based.
+//   */
+//  def c2t(id: CellId): RCOff = {
+//    id.toCharArray.toList match {
+//      case c :: r :: Nil =>
+//        val ret = (c.toUpper - 65 , r.toString.toInt - 1)
+//        ret
+//      case other => throw new Exception(s"Couldn't get offset from $id, it split to '$other'")
+//    }
+//  }
 
-  /**
-   * Convert a String to a CellRange
-   * @param s
-   * @return
-   */
-  def s2cr(s: String): CellRange = {
-    s.split(':').toList match {
-      case start :: end :: Nil => CellRange(c2t(start), c2t(end))
-      case other => throw new Exception(s"Couldn't extract range from $s, it split to '$other'")
-    }
-  }
+//  /**
+//   * Convert a String to a CellRange
+//   * @param s
+//   * @return
+//   */
+//  def s2cr(s: String): CellRange = {
+//
+//  }
 
-  /**
-   * Convert an Offset pair to a CellId
-   * @param o
-   * @return
-   */
-  def o2s(o:RCOff):CellId = {
-    s"${65 + o._1}${o._2 + 1}} "
-  }
+//  /**
+//   * Convert an Offset pair to a CellId
+//   * @param o
+//   * @return
+//   */
+//  def o2s(o:RCOff):CellId = {
+//    s"${65 + o.row + 1}${o.col + 1}}"
+//  }
 
   case class CellRange(start: RCOff, end: RCOff)  {
-
     override def toString = {
-      s"${o2s(start)}:${o2s(end)}"
+      s"${start}:${end}"
     }
   }
+
+  object CellRange{
+    def apply(s:String) = {
+      s.split(':').toList match {
+        case start :: end :: Nil => new CellRange( RCOff(start), RCOff(end))
+        case other => throw new Exception(s"Couldn't extract range from $s, it split to '$other'")
+      }
+    }
+  }
+
 
   def extractRange(s: String)(implicit m: Model): List[Cell] = {
-    extractRange(s2cr(s))
+    extractRange(CellRange(s))
   }
 
+
+
   def extractRange(c: CellRange)(implicit m: Model): List[Cell] = {
-    def colfilter(x: (Array[Model.Cell], Int)): Boolean = {
-      x._2 >= c.start._1 && x._2 <= c.end._1
-    }
-    def rowfilter(x: (Model.Cell, Int)): Boolean = {
-      x._2 >= c.start._2 && x._2 <= c.end._2
-    }
-    m.data.toList.zipWithIndex.filter {
-      colfilter
-    }.map(_._1).map(_.toList.zipWithIndex.filter(rowfilter).map(_._1)).flatten
+//    def colfilter(x: (Array[Model.Cell], Int)): Boolean = {
+//      x._2 >= c.start.row && x._2 <= c.end.row
+//    }
+//    def rowfilter(x: (Model.Cell, Int)): Boolean = {
+//      x._2 >= c.start.col && x._2 <= c.end.col
+//    }
+//    m.data.toList.zipWithIndex.filter {
+//      colfilter
+//    }.map(_._1).map(_.toList.zipWithIndex.filter(rowfilter).map(_._1)).flatten
+
+    val ret = for{ i <- Range(c.start.row, c.end.row +1 ) } yield for{j <- Range(c.start.col, c.end.col + 1)}   yield m.data(i)(j)
+
+    ret.flatten.toList
   }
 
 }
@@ -80,12 +94,12 @@ class Spreadsheet(implicit var m: Model = new Model, settings:Settings = new Set
 //  }
 
   def get(id:RCOff):String = {
-    this.m.data(id._1)(id._2).displayable()
+    this.m.data(id.col)(id.row).displayable()
   }
 
   def get(id:CellId):String = {
-    val offset = c2t(id)
-    this.m.data(offset._1)(offset._2).displayable()
+    val offset = RCOff(id)
+    this.m.data(offset.col)(offset.row).displayable()
   }
 
   def assign(id: RCOff, value: Number): Unit = {
@@ -106,7 +120,7 @@ class Spreadsheet(implicit var m: Model = new Model, settings:Settings = new Set
 
   def assign(id: RCOff, value: Either[String, Formula]): Unit = {
     try {
-      this.m.data(id._1).update(id._2, Cell(value))
+      this.m.data(id.col).update(id.row, Cell(value))
     }
     catch {
       case t: Throwable => System.err.println(t)
@@ -116,9 +130,9 @@ class Spreadsheet(implicit var m: Model = new Model, settings:Settings = new Set
   /*The spreadsheet class will need methods that allow cells identified by their names (e.g. A1 or D4) to be assigned numerical values or emptied,
    as well as queried for the values they contain.*/
   def assign(id: CellId, value: Either[String, Formula]): Unit = {
-    val offset = c2t(id)
+    val offset = RCOff(id)
     try {
-      this.m.data(offset._1).update(offset._2, Cell(value))
+      this.m.data(offset.row).update(offset.col, Cell(value))
     }
     catch {
       case t: Throwable => System.err.println(t)
@@ -151,7 +165,7 @@ class Spreadsheet(implicit var m: Model = new Model, settings:Settings = new Set
       } yield d(j)(i)
 
     List[String](headers) ::: rows.zipWithIndex.map{x => x._1.map(
-      v => settings.FormatString.format(v.printable())).mkString("%-5s|".format(x._2 + 1), "|", "|")
+      v => settings.FormatString.format(v.printable())).mkString("%-5s|".format(x._2 +1), "|", "|")
   }.toList
   }
 }

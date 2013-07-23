@@ -7,7 +7,7 @@ import jline.console.ConsoleReader
 import spreadsheet.QueryTermParser._
 import spreadsheet.QueryTermParser.Formula
 import spreadsheet.QueryTermParser.SetCommand
-import spreadsheet.{Spreadsheet, QueryTermParser}
+import spreadsheet.{RCOff, Spreadsheet, QueryTermParser}
 
 object Example {
 
@@ -69,9 +69,9 @@ object Example {
                   l => out.println(l)
                 }
                 out.flush()
-              case SetCommand(id: (Int, Int), value: Either[String, Formula]) =>
+              case SetCommand(id: RCOff, value: Either[String, Formula]) =>
                 s.assign(id, value)
-              case GetCommand(id: (Int, Int)) =>
+              case GetCommand(id: RCOff) =>
                 out.println(s.get(id))
             }
           }

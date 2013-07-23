@@ -8,7 +8,6 @@ import org.parboiled.support.MatcherPath
 import org.parboiled.matchers._
 import spreadsheet.Spreadsheet.CellRange
 
-
 object QueryTermParser {
 
   lazy val qtp = new QueryTermParser {
@@ -29,9 +28,9 @@ object QueryTermParser {
 
   case object PrintCommand extends Command
 
-  case class SetCommand(id: (Int, Int), value: Either[String, Formula]) extends Command
+  case class SetCommand(id: RCOff, value: Either[String, Formula]) extends Command
 
-  case class GetCommand(id: (Int, Int)) extends Command
+  case class GetCommand(id: RCOff) extends Command
 
   object Op extends Enumeration {
     type Op = Value
@@ -152,17 +151,17 @@ class QueryTermParser extends Parser {
     ret
   } ~> Op.fromString
 
-  def Term: Rule2[Int, Int] = rule {
+  def Term: Rule1[RCOff] = rule {
     Col ~ Num
-  }
+  } ~~> ((r:Int,c:Int ) => RCOff(c -1,r))
 
-  def Pair: Rule4[Int, Int, Int, Int] = rule {
+  def Pair: Rule2[RCOff, RCOff] = rule {
     Term ~ ":" ~ Term
   }
 
   def FormulaExtractor = rule {
     "=" ~ Operation ~ "(" ~ Pair ~ ")"
-  } ~~> ((a: Op.Value, b: Int, c: Int, d: Int, e: Int) => Formula(a, CellRange((b, c - 1), (d, e - 1))))
+  } ~~> ((o: Op.Value, a:RCOff, b:RCOff) => Formula(o, CellRange(a, b)))
 
   def AnythingToEnd: Rule1[String] = rule {
     oneOrMore(noneOf(Array('\n')))
@@ -170,15 +169,15 @@ class QueryTermParser extends Parser {
 
   def SetCmd = rule {
     "SET" ~ " " ~ Term ~ " " ~ (FormulaExtractor | (!"=" ~ AnythingToEnd)) ~ EOI
-  } ~~> ((b: Int, c: Int, s: Any) => s match {
-    case f: Formula => SetCommand((b, c), Right(f))
-    case s: String => SetCommand((b, c), Left(s))
+  } ~~> ((rc:RCOff, s: Any) => s match {
+    case f: Formula => SetCommand(rc, Right(f))
+    case s: String => SetCommand(rc, Left(s))
     case other => throw new UnsupportedOperationException(other.toString)
   })
 
   def GetCmd: Rule1[GetCommand] = rule {
     "GET" ~ " " ~ Term ~ EOI
-  } ~~> ((b: Int, c: Int) => GetCommand((b, c)))
+  } ~~> ((rc:RCOff) => GetCommand(rc))
 
   def PrintCmd: Rule1[PrintCommand.type] = rule {
     str("PRINT")
