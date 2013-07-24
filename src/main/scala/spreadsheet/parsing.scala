@@ -26,6 +26,8 @@ object QueryTermParser {
 
   sealed trait Command
 
+  case object PrintRawCommand extends Command
+
   case object PrintCommand extends Command
 
   case class SetCommand(id: RCOff, value: Either[String, Formula]) extends Command
@@ -183,8 +185,12 @@ class QueryTermParser extends Parser {
     str("PRINT")
   } ~> ((s: String) =>  PrintCommand)
 
+  def PrintRawCmd: Rule1[PrintRawCommand.type] = rule {
+    str("PRINTRAW")
+  } ~> ((s: String) =>  PrintRawCommand)
+
   def CmdExtractor: Rule1[Command] = rule {
-    SetCmd | GetCmd | PrintCmd
+    SetCmd | GetCmd | PrintCmd  | PrintRawCmd
   }
 
 }

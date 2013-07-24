@@ -69,6 +69,13 @@ object Example {
                   l => out.println(l)
                 }
                 out.flush()
+
+              case PrintRawCommand =>
+                s.renderRaw.foreach {
+                  l => out.println(l)
+                }
+                out.flush()
+
               case SetCommand(id: RCOff, value: Either[String, Formula]) =>
                 s.assign(id, value)
               case GetCommand(id: RCOff) =>

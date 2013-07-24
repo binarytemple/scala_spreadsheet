@@ -76,14 +76,16 @@ class Model {
 
   def generateDefault() = Range(0, 10).toArray.map(c => Range(0, 8).toArray.map(r => Cell(Left("0"))  ))
 
-  val data: Array[Array[Cell]] = generateDefault()
+  private val data: Array[Array[Cell]] = generateDefault()
 
   def getRow(i: Int) = data(i)
+
+  def getRows(): List[List[Cell]] = data.toList.map(_.toList)
 
   def getCol(i: Int) =
     (for(r <- Range(0,data.length)) yield getRow(r)(i) ).toList
 
-  def getRowCol(rc:RCOff) = data(rc.row)(rc.col)
+  def getRowCol(rc:RCOff): Cell = data(rc.row)(rc.col)
 
   def setRowCol(rc:RCOff,c:Cell) = data(rc.row).update(rc.col,c)
 

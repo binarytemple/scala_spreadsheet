@@ -38,7 +38,7 @@ class QueryTermParserErrorHandlingTest extends Specification with Mockito {
       QueryTermParser.parseCommand("") must beLeft.like {
         case in@CommandParseFailure(a, b, c, d, options) =>
           options must containTheSameElementsAs(List(
-            "GET", "SET", "PRINT"
+            "GET", "SET", "PRINT" ,"PRINTRAW"
           ))
       }
     }
@@ -48,7 +48,7 @@ class QueryTermParserErrorHandlingTest extends Specification with Mockito {
       p must beLeft.like {
         case in@CommandParseFailure(start, end, c, d, options) =>
           options must containTheSameElementsAs(List(
-            "RINT"
+            "RINT", "RINTRAW"
           ))
           start must_== 1
           end must_== 2
@@ -72,7 +72,7 @@ class QueryTermParserErrorHandlingTest extends Specification with Mockito {
         p must beLeft.like {
           case in@CommandParseFailure(start, end, c, delta, options) =>
             options must containTheSameElementsAs(List(
-              "RINT"
+              "RINT", "RINTRAW"
             ))
             start must_== 1
             end must_== 2
