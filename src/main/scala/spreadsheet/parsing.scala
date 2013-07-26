@@ -16,11 +16,6 @@ object QueryTermParser {
 
   /**
    * If parsing fails, this class will reveal where, and how.
-   * @param start
-   * @param end
-   * @param buffer
-   * @param delta
-   * @param options
    */
   case class CommandParseFailure(start: Int, end: Int, buffer: InputBuffer, delta: Int, options: List[String])
 
@@ -29,6 +24,8 @@ object QueryTermParser {
   case object PrintRawCommand extends Command
 
   case object PrintCommand extends Command
+
+  case object ExitCommand extends Command
 
   case class SetCommand(id: RCOff, value: Either[String, Formula]) extends Command
 
@@ -53,17 +50,18 @@ object QueryTermParser {
   }
 
   case class Formula(op: Op.Value, cr: CellRange) {
-    def evaluate()(implicit m: Model) = {
-      val input = Spreadsheet.extractRange(cr)(m).map(_.numericalValue())
-      op match {
+    def evaluate()(implicit m: Model):Double = {
+      /*filter(_.isNumeric).*/
+      val input = Spreadsheet.extractRange(cr)(m).map(_.numericalValue())//.filter(_ < 0)
+       op match {
         case Op.Sum => input.sum
-        case Op.Count => input.length.toDouble
+        case Op.Count => input.count(_ > 0).toDouble
         case Op.Max => input.max
         case Op.Min => input.min
       }
     }
     override  def toString = {
-      s"${op}=(${cr.toString})"
+      s"$op=(${cr.toString})"
     }
   }
 
@@ -189,8 +187,12 @@ class QueryTermParser extends Parser {
     str("PRINTRAW")
   } ~> ((s: String) =>  PrintRawCommand)
 
+  def ExitCmd: Rule1[ExitCommand.type] = rule {
+    str("EXIT")
+  } ~> (_ => ExitCommand)
+
   def CmdExtractor: Rule1[Command] = rule {
-    SetCmd | GetCmd | PrintCmd  | PrintRawCmd
+    SetCmd | GetCmd | PrintCmd  | PrintRawCmd  | ExitCmd
   }
 
 }

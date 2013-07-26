@@ -3,7 +3,7 @@ package spreadsheet
 object Utils {
 
   /**
-   * Example behavior
+   * TerminalMain behavior
    * stripOverlapFromToken(woodo,dog) == g
    * stripOverlapFromToken(woodo,dog) == og
    * @param existing

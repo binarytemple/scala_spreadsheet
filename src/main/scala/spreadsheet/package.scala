@@ -29,8 +29,5 @@ package object spreadsheet {
         case other => throw new Exception(s"Couldn't get offset from $cid, it split to '$other'")
       }
     }
-
   }
-
-
 }
