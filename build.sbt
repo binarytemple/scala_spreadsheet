@@ -28,6 +28,8 @@ libraryDependencies += "org.mockito" % "mockito-all" % "1.9.0" % "test"
 
 libraryDependencies += "jline" % "jline" % "2.10"
 
+libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.0.2"
+
 EclipseKeys.withSource := true
 
 net.virtualvoid.sbt.graph.Plugin.graphSettings
