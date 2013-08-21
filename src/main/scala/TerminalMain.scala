@@ -1,6 +1,4 @@
 import java.io.PrintWriter
-import java.nio.charset.Charset
-import java.nio.file._
 import jline.console.ConsoleReader
 import spreadsheet.QueryTermParser._
 import spreadsheet.QueryTermParser.Formula
@@ -23,12 +21,12 @@ object TerminalMain {
       val reader: ConsoleReader = new ConsoleReader
       reader.setPrompt("prompt> ")
 
-      val c = if (args.lift(1) == "debug".some) {
+      val c = if (args.lift(0) == "debug".some) {
+        System.err.println("logging to /tmp")
         new SpreadsheetCompleter with TmpLogger
-    }
-      else{
+      } else {
         new SpreadsheetCompleter with NoopLogger
-    }
+      }
       reader.addCompleter(c)
       reader.setHistoryEnabled(true)
 

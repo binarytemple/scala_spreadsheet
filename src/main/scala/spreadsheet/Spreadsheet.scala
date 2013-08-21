@@ -6,36 +6,6 @@ import spreadsheet.QueryTermParser.Formula
 
 object Spreadsheet {
 
-  //  /**
-  //   * Convert a CellId to an offset pair. The offsets are zero based.
-  //   */
-  //  def c2t(id: CellId): RCOff = {
-  //    id.toCharArray.toList match {
-  //      case c :: r :: Nil =>
-  //        val ret = (c.toUpper - 65 , r.toString.toInt - 1)
-  //        ret
-  //      case other => throw new Exception(s"Couldn't get offset from $id, it split to '$other'")
-  //    }
-  //  }
-
-  //  /**
-  //   * Convert a String to a CellRange
-  //   * @param s
-  //   * @return
-  //   */
-  //  def s2cr(s: String): CellRange = {
-  //
-  //  }
-
-  //  /**
-  //   * Convert an Offset pair to a CellId
-  //   * @param o
-  //   * @return
-  //   */
-  //  def o2s(o:RCOff):CellId = {
-  //    s"${65 + o.row + 1}${o.col + 1}}"
-  //  }
-
   case class CellRange(start: RCOff, end: RCOff) {
     override def toString = {
       s"${start}:${end}"
@@ -77,10 +47,6 @@ class Spreadsheet(implicit var m: Model = new Model, settings: Settings = new Se
 
   import Spreadsheet._
 
-  //  def assign(id: CellId, value: Any): Unit = {
-  //    assign(id, value.toString)
-  //  }
-
   def get(id: RCOff): String = {
     this.m.getRowCol(id).displayable()
   }
@@ -111,7 +77,8 @@ class Spreadsheet(implicit var m: Model = new Model, settings: Settings = new Se
       this.m.setRowCol(id, Cell(value))
     }
     catch {
-      case t: Throwable => System.err.println(t)
+      case t: Throwable =>
+        System.err.println("ERROR" +  t)
     }
   }
 

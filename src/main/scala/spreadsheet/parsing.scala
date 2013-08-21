@@ -121,9 +121,6 @@ object QueryTermParser {
         }
         Left(collect.get)
     }
-    //    println("RESULT:" + run.result)
-    //    val parseTreePrintOut = org.parboiled.support.ParseTreeUtils.printNodeTree(run)
-    //    println("TREE:" + parseTreePrintOut)
   }
 }
 
@@ -132,14 +129,12 @@ class QueryTermParser extends Parser {
   import QueryTermParser._
 
   def Col: Rule1[Int] = rule {
-    /*oneOrMore(*/ anyOf(ColLetters.toArray) /*)*/
+    anyOf(ColLetters.toArray)
     "A" - "H"
 
   } ~> (x => x.head - 65)
 
   def Num: Rule1[Int] = rule {
-    //    nTimes(1,anyOf(Range('0', '9').map(_.toChar).toArray))
-    //    /*oneOrMore(anyOf(Range('0', '9').map(_.toChar).toArray))*/
     "1" - "9"
   } ~> (_.toInt)
 
@@ -194,5 +189,4 @@ class QueryTermParser extends Parser {
   def CmdExtractor: Rule1[Command] = rule {
     SetCmd | GetCmd | PrintCmd  | PrintRawCmd  | ExitCmd
   }
-
 }

@@ -1,6 +1,7 @@
 package spreadsheet
 
 import spreadsheet.QueryTermParser.Formula
+import scala.collection.immutable.HashMap
 
 
 /**
@@ -28,6 +29,7 @@ object Model {
       case other => false
     }
 
+
     def numericalValue()(implicit m: Model): Double = {
 
       try {
@@ -40,7 +42,8 @@ object Model {
 
       } catch {
         case t: Throwable =>
-          System.err.println(s"$this ${ t.getMessage}")
+          val addr = m.getAddress(this)
+          System.err.println(s" problem with $addr -> $value  ${ t.getMessage}")
           0
       }
     }
@@ -95,6 +98,16 @@ class Model {
 
   def getRowCol(rc: RCOff): Cell = data(rc.row)(rc.col)
 
-  def setRowCol(rc: RCOff, c: Cell) = data(rc.row).update(rc.col, c)
+  var addresses = HashMap.empty[Cell, RCOff]
+
+  def setRowCol( rc: RCOff,c: Cell) = synchronized {
+    addresses = addresses + (c -> rc)
+    data(rc.row).update(rc.col, c)
+  }
+
+  def getAddress(c: Cell): Option[RCOff] = {
+    addresses.get(c)
+
+  }
 
 }
